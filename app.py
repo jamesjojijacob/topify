@@ -16,6 +16,7 @@ app.config['CASSANDRA_KEYSPACE'] = CASSANDRA_KEYSPACE
 app.config['CQLENG_ALLOW_SCHEMA_MANAGEMENT'] = True
 db = CQLAlchemy(app)
 db.sync_db()
+sp_oauth = SpotifyOAuth(CLIENT_ID,CLIENT_SECRET,REDIRECT_URI,scope=SCOPE)
 
 @app.route('/')
 def index():
@@ -24,13 +25,13 @@ def index():
 
 @app.route('/go')
 def go():
-	sp_oauth = SpotifyOAuth(CLIENT_ID,CLIENT_SECRET,REDIRECT_URI,scope=SCOPE)
+	
 	auth_url = sp_oauth.get_authorize_url()
 	return redirect(auth_url)
 
 @app.route('/callback/q')
 def callback():
-	sp_oauth = SpotifyOAuth(CLIENT_ID,CLIENT_SECRET,REDIRECT_URI,scope=SCOPE)
+	
 	access_token = ""
 	url = request.url
 	code = sp_oauth.parse_response_code(url)	
@@ -71,7 +72,7 @@ def callback():
 		top_tracks = []
 		for i in range(returned_count):
 			top_tracks.append(top_tracks_response['items'][i]['id'])
-			
+
 	track = Tracks.create(user_id=uid,user_top_tracks=top_tracks)
 
 	#Setting topify user
