@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Topify</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="https://s3.amazonaws.com/sound-bite/assets/css/main.css" />
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.9/css/all.css" integrity="sha384-5SOiIsAziJl6AWe0HWRKTXlfcSHKmYV4RBF18PPJ173Kzn7jzMyFuTtk8JA7QQG1" crossorigin="anonymous">
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+	</head>
+	<body>
+
+		<!-- Header -->
+		<div class='landing-container'>
+			<div class='landing-div'>
+				<header id="header">
+					<h2>Hello, {{name}}!</h2>
+					<p>Here are some songs you'll love.</p>
+				</header>
+
+				<form action="{{pl_url}}" >
+					<button type="submit" class="btn btn-danger spotify_button" id="login-button" style="width:260px;"><i class="fab fa-spotify"></i><p id="login-text">Open on Spotify</p></button>
+				</form>
+			</div>
+
+			<div class="spotify-player">
+				<!-- Spotify Web Player -->
+				<iframe src="https://open.spotify.com/embed?uri=spotify:user:{{user}}:playlist:{{playlist}}" width="640" height="720" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+			</div>
+		</div>
+
+		<!-- Footer -->
+			<footer id="footer">
+				<ul class="icons">
+					<li><a href="#" class="icon fa-github"><span class="label">GitHub</span> GitHub</a></li>
+				</ul>
+			</footer>
+
+		<!-- Scripts -->
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="/static/assets/js/main.js"></script>
+			<script src="https://sdk.scdn.co/spotify-player.js"></script>
+			<!-- Spotify Web Player -->
+	</body>
+</html>

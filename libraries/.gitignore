@@ -1,0 +1,19 @@
+# Byte-compiled files
+*.pyc
+
+# Distribution/packaging
+env/
+build/
+dist/
+*.egg-info
+
+# Sphinx documentation
+docs/_build/
+
+# Emacs files
+.org
+tags
+
+# Vagrant files
+Vagrantfile
+.vagrant/
