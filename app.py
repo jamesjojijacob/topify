@@ -84,7 +84,8 @@ def landing():
 		top_tracks = []
 		for i in range(returned_count):
 			top_tracks.append(top_tracks_response['items'][i]['id'])
-
+	Tracks.create(user_id=uid,user_top_tracks=top_tracks)
+	
 	#Generating recommendations
 	shuffled = top_tracks 
 	random.shuffle(shuffled)
