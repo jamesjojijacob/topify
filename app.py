@@ -15,6 +15,7 @@ app.config['CASSANDRA_HOSTS'] = [CASSANDRA_HOSTS]
 app.config['CASSANDRA_KEYSPACE'] = CASSANDRA_KEYSPACE
 app.config['CQLENG_ALLOW_SCHEMA_MANAGEMENT'] = True
 db = CQLAlchemy(app)
+db.sync_db()
 
 @app.route('/')
 def index():
@@ -46,17 +47,31 @@ def callback():
 	name = user_data['display_name']
 
 	#Add user data to db
-	db.sync_db()
 	user = Users.create(user_id=uid,user_name=name,user_email=email)
 
 	#Get top tracks
 	top_tracks_response=sp.current_user_top_tracks(limit=50)
-	top_tracks = []
-	for i in range(50):
-		top_tracks.append(top_tracks_response['items'][i]['id'])
+	returned_count = len(top_tracks_response['items'])
 
-	#Add tracks to db
-	db.sync_db()
+	#handling edge case:0
+	new_releases_response=sp.new_releases(country='US', limit=20)
+	new_albums=[]
+	for i in range(20):
+		new_albums.append(new_releases_response['albums']['items'][i]['id'])
+	new_albums_response=sp.albums(new_albums)
+	new_tracks=[]
+	for i in range(20):
+		new_tracks.append(new_albums_response['albums'][i]['tracks']['items'][0]['id'])
+	
+	
+	#adding top tracks to db
+	if returned_count == 0:
+		top_tracks = new_tracks
+	else:
+		top_tracks = []
+		for i in range(returned_count):
+			top_tracks.append(top_tracks_response['items'][i]['id'])
+			
 	track = Tracks.create(user_id=uid,user_top_tracks=top_tracks)
 
 	#Setting topify user
@@ -71,7 +86,7 @@ def callback():
 
 	#Adding recommended tracks to db
 	recommended_tracks = []
-	for i in range(20):
+	for i in range(20):	
 		recommended_tracks.append(results['tracks'][i]['id'])
 	track.user_recommended_tracks=recommended_tracks
 	track.save()
@@ -82,7 +97,6 @@ def callback():
 	playlist_url=new_playlist['external_urls']['spotify']
 
 	#Adding playlist data to db
-	db.sync_db()
 	playlist = Playlists.create(user_id=top_user,user_playlist_id=playlist_id,user_playlist_url=playlist_url)
 
 	#Adding recommended tracks to topify playlist
