@@ -4,7 +4,7 @@ CLIENT_SECRET = '7d2053de49ba4f97a98833412f33f7e7'
 
 # Server-side Parameters
 SERVER_IP = '35.242.163.50'
-CLIENT_SIDE_URL = 'http://{}'.format(SERVER_IP)
+CLIENT_SIDE_URL = 'https://{}'.format(SERVER_IP)
 PORT = 8080
 REDIRECT_URI_P = '{}/callback/q'.format(CLIENT_SIDE_URL)
 REDIRECT_URI = '{}:{}/callback/q'.format(CLIENT_SIDE_URL, PORT)

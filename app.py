@@ -177,4 +177,4 @@ def open_spotify():
 	return redirect(top_url)
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=PORT)
+	app.run('0.0.0.0', port=PORT, ssl_context=('device.crt', 'device.key'))
