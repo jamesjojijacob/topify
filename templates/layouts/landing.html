@@ -23,10 +23,14 @@
 		<form action="/recommend" method="get">
 			<button type="submit" class="btn btn-danger spotify_button" id="login-button" style="width:260px"><i class="fab fa-spotify"></i><p id="login-text">Remix</p></button>
 		</form>
-		<!-- Open Button -->
-		<form action="/open_spotify" method="get">
-			<button type="submit" class="btn btn-danger spotify_button" id="login-button" style="width:260px"><i class="fab fa-spotify"></i><p id="login-text">Open in Spotify</p></button>
-		</form>
+
+		<!-- Create Button -->
+		<form action = "/playlist" method = "post">
+			<p>Enter Playlist Name:</p>
+			<p><input type = "text" name = "playlist_name" /></p>
+			<p><input type = "submit" value = "submit" /></p>
+		 </form>
+
 			</div>
 
 			<div class="spotify-player">

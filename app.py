@@ -7,7 +7,7 @@ import base64
 import json
 from config import *
 from models import *
-from flask import Flask, request, render_template, redirect, session, url_for
+from flask import Flask, request, render_template, redirect, session, url_for, jsonify, request
 from flask_cqlalchemy import CQLAlchemy
 
 app = Flask(__name__)
@@ -58,10 +58,6 @@ def landing():
 	#Add user data to db
 	Users.create(user_id=uid,user_name=name,user_email=email)
 
-	#Setting current user
-	top_user = Users.get(user_id=uid).user_id
-	top_name = Users.get(user_id=uid).user_name
-
 	#Get top tracks
 	top_tracks_response=sp.current_user_top_tracks(limit=50)
 	returned_count = len(top_tracks_response['items'])
@@ -84,7 +80,6 @@ def landing():
 		top_tracks = []
 		for i in range(returned_count):
 			top_tracks.append(top_tracks_response['items'][i]['id'])
-	Tracks.create(user_id=uid,user_top_tracks=top_tracks)
 	
 	#Generating recommendations
 	shuffled = top_tracks 
@@ -96,6 +91,10 @@ def landing():
 	recommended_tracks = []
 	for i in range(20):	
 		recommended_tracks.append(results['tracks'][i]['id'])
+
+	Tracks.create(user_id=uid,user_top_tracks=top_tracks,user_recommended_tracks=recommended_tracks)
+
+	playlist_name = 'Topified Playlist'
 		
 	#Check if Topify playlist already exists for user
 	user_existing_playlists_response=sp.user_playlists(uid, limit=50)
@@ -103,32 +102,31 @@ def landing():
 	user_existing_playlists=[]
 	for i in range(user_existing_playlists_count):
 		user_existing_playlists.append(user_existing_playlists_response['items'][i]['name'])
-		if("Topified Playlist") in user_existing_playlists:
+		if playlist_name in user_existing_playlists:
 			for item in user_existing_playlists_response['items']:
-				if item.get('name') == "Topified Playlist" :
+				if item.get('name') == playlist_name :
 					#Get exisiting playlist
 					playlist_id = item.get('id')
 					playlist_url = item.get('external_urls')['spotify']
 		else:
 			#Create new playlist
-			new_playlist=sp.user_playlist_create(user=uid, name='Topified Playlist')
+			new_playlist=sp.user_playlist_create(user=uid, name=playlist_name)
 			playlist_id=new_playlist['id']
 			playlist_url=new_playlist['external_urls']['spotify']
 
 	#Adding playlist data to db
-	Playlists.create(user_id=uid,user_playlist_id=playlist_id,user_playlist_url=playlist_url)
-
-	#Adding recommended tracks to topify playlist
-	top_user = Users.get(user_id=uid).user_id
-	top_tracks = recommended_tracks
-	top_playlist = Playlists.get(user_id=uid).user_playlist_id
-	#change this to replace if there is an error when the playlist exists
-	sp.user_playlist_replace_tracks(top_user, top_playlist, top_tracks)
+	Playlists.create(user_id=uid,topify_playlist_id=playlist_id,topify_playlist_url=playlist_url,topify_playlist_name=playlist_name)
 
 	#Setting current user
-	
+	top_user = Users.get(user_id=uid).user_id
 	top_name = Users.get(user_id=uid).user_name
-	top_url = Playlists.get(user_id=uid).user_playlist_url
+	top_url = Playlists.get(user_id=uid).topify_playlist_url
+	top_tracks = Tracks.get(user_id=uid).user_recommended_tracks
+	top_playlist = Playlists.get(user_id=uid).topify_playlist_id
+
+	#Adding recommended tracks to topify playlist
+
+	sp.user_playlist_replace_tracks(top_user, top_playlist, top_tracks)
 
 	return render_template('pages/placeholder.landing.html', name=top_name, pl_url=top_url, user=top_user, playlist=top_playlist)
 
@@ -139,7 +137,6 @@ def recommend():
 
 	user_data = sp.current_user()
 	uid = user_data['id']
-	name = user_data['display_name']
 
 	#Regenerating recommendations
 	top = []
@@ -151,30 +148,50 @@ def recommend():
 	for i in range(20):
 		recommended_tracks.append(results['tracks'][i]['id'])
 	
+	#Replacing recommended tracks in database
+
+	Tracks(user_id=uid).update(user_recommended_tracks=recommended_tracks)
 
 	#Replacing recommended tracks in topify playlist
 
 	top_user = Users.get(user_id=uid).user_id
-	top_tracks = recommended_tracks
-	top_playlist = Playlists.get(user_id=uid).user_playlist_id
+	top_tracks = Tracks.get(user_id=uid).user_recommended_tracks
+	top_playlist = Playlists.get(user_id=uid).topify_playlist_id
 	sp.user_playlist_replace_tracks(top_user, top_playlist, top_tracks)
 
 	#Setting current user
 	
 	top_name = Users.get(user_id=uid).user_name
-	top_url = Playlists.get(user_id=uid).user_playlist_url
+	top_url = Playlists.get(user_id=uid).topify_playlist_url
 
 	return render_template('pages/placeholder.landing.html', name=top_name, pl_url=top_url, user=top_user, playlist=top_playlist)
 
-@app.route('/open_spotify')
-def open_spotify():
+@app.route('/playlist',methods=['POST'])
+def add_playlist():
+
+	if not request.form['playlist_name']:
+		return jsonify({'error':'the new playlist needs to have a name'}), 400
+	
+	playlist_name = request.form['playlist_name']
+
 	#Creating authorized spotify object
 	sp = spotipy.Spotify(auth=session['auth_header'])
 
+	#Getting current user
 	user_data = sp.current_user()
 	uid = user_data['id']
-	top_url = Playlists.get(user_id=uid).user_playlist_url
-	return redirect(top_url)
 
+	new_playlist=sp.user_playlist_create(user=uid, name=playlist_name)
+	playlist_id=new_playlist['id']
+	playlist_url=new_playlist['external_urls']['spotify']
+	#Adding playlist data to db
+	Created.create(user_id=uid,user_playlist_id=playlist_id,user_playlist_url=playlist_url,user_playlist_name=playlist_name)
+
+	top_user = Users.get(user_id=uid).user_id
+	top_tracks = Tracks.get(user_id=uid).user_recommended_tracks
+	top_playlist = Created.get(user_id=uid).user_playlist_id
+	sp.user_playlist_add_tracks(top_user, playlist_id, top_tracks)
+
+	return jsonify({'message': 'created: {}'.format(playlist_name)}), 201
 if __name__ == '__main__':
 	app.run('0.0.0.0', port=PORT, ssl_context=('device.crt', 'device.key'))
