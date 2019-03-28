@@ -1,9 +1,9 @@
-APP_SESSION_KEY = 'randomkey123'
-CLIENT_ID = 'b270d0db21f6420893443e2f2a85e435'
-CLIENT_SECRET = '7d2053de49ba4f97a98833412f33f7e7'
+APP_SESSION_KEY = 'a-random-key'
+CLIENT_ID = 'client-id-from-spotify'
+CLIENT_SECRET = 'client-secret-from-spotify'
 
 # Server-side Parameters
-SERVER_IP = '35.242.163.50'
+SERVER_IP = 'your-server-ip'
 CLIENT_SIDE_URL = 'https://{}'.format(SERVER_IP)
 PORT = 8080
 REDIRECT_URI_P = '{}/callback/q'.format(CLIENT_SIDE_URL)
@@ -12,5 +12,5 @@ SCOPE = 'playlist-modify-public playlist-modify-private user-read-email playlist
 
 #Database parameters
 
-CASSANDRA_HOSTS = 'cassandra'
-CASSANDRA_KEYSPACE = 'topify'
+CASSANDRA_HOSTS = 'cassandra-hostname'
+CASSANDRA_KEYSPACE = 'cassandra-keyspace-name'
