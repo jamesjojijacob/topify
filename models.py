@@ -6,7 +6,7 @@ from app import db
 class Users(db.Model):
     user_id = db.columns.Text(primary_key=True,required=True)
     user_name = db.columns.Text(required=True)
-    user_email = db.columns.Text(required=True)
+    user_email = db.columns.Text(required=False)
     
 class Tracks(db.Model):
     user_id = db.columns.Text(primary_key=True,required=True)
@@ -15,5 +15,12 @@ class Tracks(db.Model):
 
 class Playlists(db.Model):
     user_id = db.columns.Text(primary_key=True,required=True)
-    user_playlist_id = db.columns.Text(required=True)
-    user_playlist_url = db.columns.Text(required=True)
+    topify_playlist_id = db.columns.Text(required=False)
+    topify_playlist_url = db.columns.Text(required=False)
+    topify_playlist_name = db.columns.Text(required=True)
+    
+class Created(db.Model):
+    user_id = db.columns.Text(primary_key=True,required=True)
+    user_playlist_id = db.columns.Text(required=False)
+    user_playlist_url = db.columns.Text(required=False)
+    user_playlist_name = db.columns.Text(required=True)
