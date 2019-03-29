@@ -5,7 +5,7 @@ A web app based on the Spotify [API](<https://developer.spotify.com/documentatio
 Topify is a web app that generates personalized recommendations based on a user's most listened to tracks on Spotify. It is built using a Python-Flask backend and leverages the extensive Spotify Web API.
 
 ## Demo
-<img src="https://media.giphy.com/media/fLpPcc5yDndDFGtJb7/giphy.gif">
+<img src="https://media.giphy.com/media/28cSpGz3YLKB8fY1WH/giphy.gif">
 
 
 ## Getting Started
